@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Verification Blockchain</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab:hover {
+            background-color: #f8f9fa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background-color: #f0f4ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-area {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .hash-display {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-success {
+            background-color: #28a745;
+        }
+
+        .status-error {
+            background-color: #dc3545;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .document-list {
+            margin-top: 20px;
+        }
+
+        .document-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .document-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .document-hash {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #666;
+            word-break: break-all;
+        }
+
+        .document-timestamp {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Document Verification Blockchain</h1>
+            <p>Secure document verification using blockchain technology</p>
+        </div>
+
+        <div class="main-content">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('upload')">
+                    <i class="fas fa-upload"></i> Upload & Register
+                </div>
+                <div class="tab" onclick="switchTab('verify')">
+                    <i class="fas fa-check-circle"></i> Verify Document
+                </div>
+                <div class="tab" onclick="switchTab('documents')">
+                    <i class="fas fa-list"></i> My Documents
+                </div>
+            </div>
+
+            <!-- Upload Tab -->
+            <div id="upload-tab" class="tab-content active">
+                <div class="upload-area" onclick="document.getElementById('upload-file').click()">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">Click to upload or drag and drop</div>
+                    <div class="upload-hint">Supports PDF, DOC, TXT, and image files</div>
+                </div>
+                <input type="file" id="upload-file" class="file-input"
+                    accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif">
+                <button class="btn" onclick="uploadDocument()" id="upload-btn" disabled>
+                    <i class="fas fa-upload"></i> Upload & Register on Blockchain
+                </button>
+
+                <div class="loading" id="upload-loading">
+                    <div class="spinner"></div>
+                    <p>Uploading and registering document on blockchain...</p>
+                </div>
+
+                <div class="result-area" id="upload-result"></div>
+            </div>
+
+            <!-- Verify Tab -->
+            <div id="verify-tab" class="tab-content">
+                <div class="upload-area" onclick="document.getElementById('verify-file').click()">
+                    <div class="upload-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="upload-text">Click to select document for verification</div>
+                    <div class="upload-hint">Upload the document you want to verify</div>
+                </div>
+                <input type="file" id="verify-file" class="file-input"
+                    accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif">
+                <button class="btn" onclick="verifyDocument()" id="verify-btn" disabled>
+                    <i class="fas fa-check"></i> Verify Document
+                </button>
+
+                <div class="loading" id="verify-loading">
+                    <div class="spinner"></div>
+                    <p>Verifying document on blockchain...</p>
+                </div>
+
+                <div class="result-area" id="verify-result"></div>
+            </div>
+
+            <!-- Documents Tab -->
+            <div id="documents-tab" class="tab-content">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <input type="text" id="user-address" placeholder="Enter Ethereum address"
+                        style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 300px; margin-right: 10px;">
+                    <button class="btn" onclick="loadUserDocuments()">
+                        <i class="fas fa-search"></i> Load Documents
+                    </button>
+                </div>
+
+                <div class="loading" id="documents-loading">
+                    <div class="spinner"></div>
+                    <p>Loading documents...</p>
+                </div>
+
+                <div class="document-list" id="documents-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
